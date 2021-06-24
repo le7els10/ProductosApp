@@ -8,13 +8,15 @@ import useCategories from '../hooks/useCategories';
 import {useForm} from '../hooks/useForm';
 import {useContext} from 'react';
 import {ProductsContext} from '../context/ProductsContext';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
 interface Props extends StackScreenProps<ProductStackParams, 'ProductScreen'> {}
 
 const ProductScreen = ({route, navigation}: Props) => {
   const {name = '', id = ''} = route.params;
-  const {categories, isLoading} = useCategories();
-  const {loadProductById, addProduct, updateProduct} =
+  const {categories} = useCategories();
+  const [temUri, settemUri] = useState('');
+  const {loadProductById, addProduct, updateProduct, uploadImage} =
     useContext(ProductsContext);
   const {_id, categoriaId, nombre, img, form, onChange, setFormValue} = useForm(
     {
@@ -58,6 +60,38 @@ const ProductScreen = ({route, navigation}: Props) => {
     }
   };
 
+  const takePic = () => {
+    launchCamera(
+      {
+        mediaType: 'photo',
+        quality: 0.5,
+      },
+      res => {
+        if (res.didCancel) return;
+        if (res.assets[0].uri) {
+          settemUri(res.assets[0].uri);
+          uploadImage(res, _id);
+        }
+      },
+    );
+  };
+
+  const takeFromGallery = () => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        quality: 0.5,
+      },
+      res => {
+        if (res.didCancel) return;
+        if (res.assets[0].uri) {
+          settemUri(res.assets[0].uri);
+          uploadImage(res, _id);
+        }
+      },
+    );
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -88,12 +122,12 @@ const ProductScreen = ({route, navigation}: Props) => {
               justifyContent: 'center',
               marginTop: 5,
             }}>
-            <Button title="Camara" onPress={() => {}} />
-            <Button title="Galeria" onPress={() => {}} />
+            <Button title="Camara" onPress={takePic} />
+            <Button title="Galeria" onPress={takeFromGallery} />
           </View>
         )}
 
-        {img.length > 0 && (
+        {img.length > 0 && temUri.length === 0 && (
           <Image
             style={{
               marginTop: 20,
@@ -102,6 +136,19 @@ const ProductScreen = ({route, navigation}: Props) => {
             }}
             source={{
               uri: img,
+            }}
+          />
+        )}
+
+        {temUri.length > 0 && (
+          <Image
+            style={{
+              marginTop: 20,
+              width: '100%',
+              height: 300,
+            }}
+            source={{
+              uri: temUri,
             }}
           />
         )}
