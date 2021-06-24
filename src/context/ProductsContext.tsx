@@ -5,7 +5,7 @@ import {Producto, ProductsResponse} from '../interfaces/appInterfaces';
 type ProductsContextProps = {
   products: Producto[];
   loadProducts: (limit?: number) => Promise<void>;
-  addProduct: (categoryId: string, productName: string) => Promise<void>;
+  addProduct: (categoryId: string, productName: string) => Promise<Producto>;
   updateProduct: (
     categoryId: string,
     productName: string,
@@ -32,15 +32,38 @@ export const ProductsProvider = ({children}: any) => {
     setproducts([...data.productos]);
     // setproducts([...products, ...data.productos]);
   };
-  const addProduct = async (categoryId: string, productName: string) => {};
+  const addProduct = async (
+    categoryId: string,
+    productName: string,
+  ): Promise<Producto> => {
+    const {data} = await cafeApi.post<Producto>('/productos', {
+      nombre: productName,
+      categoria: categoryId,
+    });
+    setproducts([...products, data]);
+
+    return data;
+  };
   const updateProduct = async (
     categoryId: string,
     productName: string,
     productId: string,
-  ) => {};
+  ) => {
+    const {data} = await cafeApi.put<Producto>(`/productos/${productId}`, {
+      nombre: productName,
+      categoria: categoryId,
+    });
+    setproducts(
+      products.map(prod => {
+        return prod._id === productId ? data : prod;
+      }),
+    );
+  };
   const deleteProduct = async (productId: string) => {};
-  const loadProductById = async (productId: string) => {
-    throw new Error('not implemented');
+  const loadProductById = async (productId: string): Promise<Producto> => {
+    const {data} = await cafeApi.get<Producto>(`/productos/${productId}`);
+
+    return data;
   };
   const uploadImage = async (data: any, id: string) => {};
 

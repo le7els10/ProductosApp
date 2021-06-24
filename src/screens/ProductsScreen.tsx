@@ -1,7 +1,8 @@
 import {StackScreenProps} from '@react-navigation/stack';
 import React, {useEffect} from 'react';
+import {useState} from 'react';
 import {useContext} from 'react';
-import {StyleSheet, TouchableOpacity} from 'react-native';
+import {StyleSheet, TouchableOpacity, RefreshControl} from 'react-native';
 import {FlatList, Text, View} from 'react-native';
 import {ProductsContext} from '../context/ProductsContext';
 import {ProductStackParams} from '../navigator/ProductsNavigator';
@@ -11,7 +12,7 @@ interface Props
 
 const ProductsScreen = ({navigation}: Props) => {
   const {products, loadProducts} = useContext(ProductsContext);
-
+  const [refresh, setrefresh] = useState(false);
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -24,6 +25,12 @@ const ProductsScreen = ({navigation}: Props) => {
     });
   }, []);
 
+  const loadProductsFromBackend = async () => {
+    setrefresh(true);
+    await loadProducts();
+    setrefresh(false);
+  };
+
   return (
     <View
       style={{
@@ -31,6 +38,12 @@ const ProductsScreen = ({navigation}: Props) => {
         marginHorizontal: 10,
       }}>
       <FlatList
+        refreshControl={
+          <RefreshControl
+            refreshing={refresh}
+            onRefresh={loadProductsFromBackend}
+          />
+        }
         data={products}
         keyExtractor={p => p._id}
         renderItem={({item}) => (

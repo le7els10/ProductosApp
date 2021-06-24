@@ -24,23 +24,36 @@ export interface Usuario {
   img?: string;
 }
 
-
 //productos
 
 export interface ProductsResponse {
-  total:     number;
+  total: number;
   productos: Producto[];
 }
 
 export interface Producto {
-  precio:    number;
-  _id:       string;
-  nombre:    string;
+  precio: number;
+  _id: string;
+  nombre: string;
   categoria: Categoria;
-  usuario:   Categoria;
+  usuario: Categoria;
+  img?: string;
+}
+
+//categorias
+
+export interface CategoriesResponse {
+  total: number;
+  categorias: Categoria[];
 }
 
 export interface Categoria {
-  _id:    string;
+  _id: string;
+  nombre: string;
+  usuario?: CreadoPor;
+}
+
+export interface CreadoPor {
+  _id: string;
   nombre: string;
 }
